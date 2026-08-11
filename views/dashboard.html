@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPN Panel - داشبورد</title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --bg-dark: #0a0a1a;
+      --bg-card: rgba(17, 17, 34, 0.8);
+      --bg-hover: rgba(99, 102, 241, 0.1);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.5);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --sidebar-width: 260px;
+    }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: rgba(13, 13, 28, 0.95);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .sidebar-logo {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-light);
+    }
+
+    .nav-item .icon { font-size: 20px; width: 24px; text-align: center; }
+
+    .nav-section-title {
+      padding: 16px 16px 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 1px;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .user-name { font-size: 13px; font-weight: 600; }
+    .user-role { font-size: 11px; color: var(--text-secondary); }
+
+    /* Main Content */
+    .main-content {
+      margin-right: var(--sidebar-width);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+    .btn-icon { padding: 8px; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+
+    /* Stat Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .stat-icon.blue { background: rgba(59, 130, 246, 0.15); }
+    .stat-icon.green { background: rgba(16, 185, 129, 0.15); }
+    .stat-icon.red { background: rgba(239, 68, 68, 0.15); }
+    .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); }
+    .stat-icon.purple { background: rgba(139, 92, 246, 0.15); }
+
+    .stat-label { color: var(--text-secondary); font-size: 13px; }
+    .stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: right;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-info { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+    .badge-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+    /* Protocol Badges */
+    .protocol-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .protocol-vless { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .protocol-vmess { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .protocol-trojan { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+    .protocol-shadowsocks { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+    .protocol-hysteria2 { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+    .protocol-wireguard { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; }
+    .protocol-tuic { background: rgba(236, 72, 153, 0.15); color: #f9a8d4; }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.green { background: var(--success); }
+    .progress-fill.yellow { background: var(--warning); }
+    .progress-fill.red { background: var(--danger); }
+
+    /* Toggle Switch */
+    .toggle {
+      width: 42px;
+      height: 22px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.active {
+      background: var(--success);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      right: 2px;
+      transition: transform 0.3s;
+    }
+
+    .toggle.active::after {
+      transform: translateX(-20px);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #111122;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title { font-size: 18px; font-weight: 700; }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Form styles in modal */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 12px center;
+      padding-left: 32px;
+    }
+
+    select.form-control option {
+      background: #111122;
+      color: #fff;
+    }
+
+    /* Search */
+    .search-box {
+      position: relative;
+      max-width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+    }
+
+    /* QR Modal */
+    .qr-container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .qr-container img {
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .link-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      word-break: break-all;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 12px 0;
+      max-height: 100px;
+      overflow-y: auto;
+      direction: ltr;
+      text-align: left;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Vazirmatn', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .filter-tab.active,
+    .filter-tab:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      animation: toastIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast-success { background: rgba(16, 185, 129, 0.9); color: #fff; }
+    .toast-error { background: rgba(239, 68, 68, 0.9); color: #fff; }
+    .toast-info { background: rgba(59, 130, 246, 0.9); color: #fff; }
+
+    @keyframes toastIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Section visibility */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Responsive */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1001;
+      padding: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-right: 0;
+      }
+      .mobile-menu-btn {
+        display: flex;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 14px; }
+
+    /* Actions Dropdown */
+    .actions-cell {
+      display: flex;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🛡️ VPN Panel Pro</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard')">
+        <span class="icon">📊</span> داشبورد
+      </div>
+      <div class="nav-item" onclick="showSection('clients')">
+        <span class="icon">👥</span> کلاینت‌ها
+      </div>
+      <div class="nav-item" onclick="showSection('add-client')">
+        <span class="icon">➕</span> افزودن کلاینت
+      </div>
+
+      <div class="nav-section-title">مدیریت</div>
+      <div class="nav-item" onclick="showSection('settings')">
+        <span class="icon">⚙️</span> تنظیمات
+      </div>
+      <div class="nav-item" onclick="showSection('users')">
+        <span class="icon">👤</span> کاربران
+      </div>
+      <div class="nav-item" onclick="showSection('logs')">
+        <span class="icon">📋</span> لاگ‌ها
+      </div>
+
+      <div class="nav-section-title">ابزارها</div>
+      <div class="nav-item" onclick="exportData()">
+        <span class="icon">📦</span> پشتیبان‌گیری
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">👤</div>
+        <div>
+          <div class="user-name" id="currentUser">Admin</div>
+          <div class="user-role">مدیر سیستم</div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:10px;" onclick="logout()">
+        🚪 خروج
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <div class="section active" id="section-dashboard">
+      <div class="topbar">
+        <h1 class="page-title">📊 داشبورد</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-outline btn-sm" onclick="refreshStats()">🔄 بروزرسانی</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div><div class="stat-label">کل کلاینت‌ها</div>
+            <div class="stat-value" id="stat-total">0</div></div>
+            <div class="stat-icon blue">👥</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div><div class="stat-label">فعال</div>
+            <div class="stat-value" id="stat-active">0</div></div>
+            <div class="stat-icon green">✅</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div><div class="stat-label">منقضی شده</div>
+            <div class="stat-value" id="stat-expired">0</div></div>
+            <div class="stat-icon red">⏰</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div><div class="stat-label">اتمام ترافیک</div>
+            <div class="stat-value" id="stat-traffic-exceeded">0</div></div>
+            <div class="stat-icon yellow">📊</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div><div class="stat-label">کل ترافیک مصرفی</div>
+            <div class="stat-value" id="stat-total-traffic" style="font-size:20px">0 B</div></div>
+            <div class="stat-icon purple">📈</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Protocol Distribution -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📡 توزیع پروتکل‌ها</h3>
+        </div>
+        <div class="card-body" id="protocol-distribution">
+          <div class="empty-state">
+            <div class="icon">📊</div>
+            <p>در حال بارگذاری...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Info -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">💻 اطلاعات سیستم</h3>
+        </div>
+        <div class="card-body" id="system-info">
+          <p style="color: var(--text-secondary)">در حال بارگذاری...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CLIENTS SECTION ===== -->
+    <div class="section" id="section-clients">
+      <div class="topbar">
+        <h1 class="page-title">👥 مدیریت کلاینت‌ها</h1>
+        <div class="topbar-actions">
+          <div class="search-box">
+            <input type="text" placeholder="جستجو..." id="searchInput" oninput="searchClients()">
+            <span class="search-icon">🔍</span>
+          </div>
+          <button class="btn btn-primary" onclick="showSection('add-client')">
+            ➕ کلاینت جدید
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterClients('all', this)">همه</button>
+        <button class="filter-tab" onclick="filterClients('vless', this)">VLESS</button>
+        <button class="filter-tab" onclick="filterClients('vmess', this)">VMess</button>
+        <button class="filter-tab" onclick="filterClients('trojan', this)">Trojan</button>
+        <button class="filter-tab" onclick="filterClients('shadowsocks', this)">Shadowsocks</button>
+        <button class="filter-tab" onclick="filterClients('hysteria2', this)">Hysteria2</button>
+        <button class="filter-tab" onclick="filterClients('tuic', this)">TUIC</button>
+        <button class="filter-tab" onclick="filterClients('wireguard', this)">WireGuard</button>
+      </div>
+
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>نام</th>
+                <th>پروتکل</th>
+                <th>وضعیت</th>
+                <th>ترافیک</th>
+                <th>انقضا</th>
+                <th>اتصالات</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="clientsTableBody">
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>در حال بارگذاری...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADD CLIENT SECTION ===== -->
+    <div class="section" id="section-add-client">
+      <div class="topbar">
+        <h1 class="page-title">➕ افزودن کلاینت جدید</h1>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form id="addClientForm" onsubmit="createClient(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>نام کلاینت *</label>
+                <input type="text" class="form-control" name="name" required placeholder="مثال: کاربر ۱">
+              </div>
+              <div class="form-group">
+                <label>ایمیل (اختیاری)</label>
+                <input type="email" class="form-control" name="email" placeholder="user@example.com">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>پروتکل *</label>
+                <select class="form-control" name="protocol" id="protocolSelect" onchange="onProtocolChange()">
+                  <option value="vless">VLESS</option>
+                  <option value="vmess">VMess</option>
+                  <option value="trojan">Trojan</option>
+                  <option value="shadowsocks">Shadowsocks</option>
+                  <option value="hysteria2">Hysteria2</option>
+                  <option value="tuic">TUIC</option>
+                  <option value="wireguard">WireGuard</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>پورت</label>
+                <input type="number" class="form-control" name="port" value="443" min="1" max="65535">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>حجم ترافیک (GB) - ۰ = نامحدود</label>
+                <input type="number" class="form-control" name="traffic_limit" value="50" min="0">
+              </div>
+              <div class="form-group">
+                <label>مدت اعتبار (روز) - خالی = نامحدود</label>
+                <input type="number" class="form-control" name="expire_days" value="30" min="0">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>حداکثر اتصال همزمان</label>
+                <input type="number" class="form-control" name="max_connections" value="2" min="1">
+              </div>
+              <div class="form-group">
+                <label>شبکه (Transport)</label>
+                <select class="form-control" name="network" id="networkSelect" onchange="onNetworkChange()">
+                  <option value="tcp">TCP</option>
+                  <option value="ws">WebSocket</option>
+                  <option value="grpc">gRPC</option>
+                  <option value="http">HTTP/2</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Transport Settings -->
+            <div id="wsSettings" style="display:none">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>WebSocket Path</label>
+                  <input type="text" class="form-control" name="ws_path" value="/" placeholder="/ws">
+                </div>
+                <div class="form-group">
+                  <label>WebSocket Host</label>
+                  <input type="text" class="form-control" name="ws_host" placeholder="example.com">
+                </div>
+              </div>
+            </div>
+
+            <div id="grpcSettings" style="display:none">
+              <div class="form-group">
+                <label>gRPC Service Name</label>
+                <input type="text" class="form-control" name="grpc_service_name" placeholder="grpc-service">
+              </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div id="securitySettings">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" name="tls" id="tlsCheck" onchange="onTlsChange()"> فعال‌سازی TLS
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" name="reality_enabled" id="realityCheck" onchange="onRealityChange()"> فعال‌سازی Reality
+                  </label>
+                </div>
+              </div>
+
+              <div id="tlsSettings" style="display:none">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>SNI</label>
+                    <input type="text" class="form-control" name="sni" placeholder="example.com">
+                  </div>
+                  <div class="form-group">
+                    <label>Fingerprint</label>
+                    <select class="form-control" name="fingerprint">
+                      <option value="chrome">Chrome</option>
+                      <option value="firefox">Firefox</option>
+                      <option value="safari">Safari</option>
+                      <option value="edge">Edge</option>
+                      <option value="random">Random</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div id="realitySettings" style="display:none">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Reality Dest</label>
+                    <input type="text" class="form-control" name="reality_dest" placeholder="yahoo.com:443">
+                  </div>
+                  <div class="form-group">
+                    <label>Server Names</label>
+                    <input type="text" class="form-control" name="reality_server_names" placeholder="yahoo.com">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Public Key</label>
+                    <input type="text" class="form-control" name="reality_public_key" id="realityPubKey">
+                  </div>
+                  <div class="form-group">
+                    <label>Private Key</label>
+                    <input type="text" class="form-control" name="reality_private_key" id="realityPriKey">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Short ID</label>
+                    <input type="text" class="form-control" name="reality_short_id" id="realityShortId">
+                  </div>
+                  <div class="form-group" style="display:flex;align-items:flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="generateRealityKeys()">
+                      🔑 تولید کلید Reality
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shadowsocks specific -->
+            <div id="ssSettings" style="display:none">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>روش رمزنگاری</label>
+                  <select class="form-control" name="ss_method">
+                    <option value="chacha20-ietf-poly1305">chacha20-ietf-poly1305</option>
+                    <option value="aes-256-gcm">aes-256-gcm</option>
+                    <option value="aes-128-gcm">aes-128-gcm</option>
+                    <option value="2022-blake3-aes-128-gcm">2022-blake3-aes-128-gcm</option>
+                    <option value="2022-blake3-aes-256-gcm">2022-blake3-aes-256-gcm</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>رمز عبور SS</label>
+                  <input type="text" class="form-control" name="ss_password" id="ssPassword">
+                  <button type="button" class="btn btn-outline btn-sm" style="margin-top:6px" onclick="generateSSPassword()">
+                    🔑 تولید خودکار
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- WireGuard specific -->
+            <div id="wgSettings" style="display:none">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>آدرس IP</label>
+                  <input type="text" class="form-control" name="wg_address" placeholder="10.0.0.2">
+                </div>
+                <div class="form-group">
+                  <label>DNS</label>
+                  <input type="text" class="form-control" name="wg_dns" value="1.1.1.1">
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline" onclick="generateWGKeys()">
+                🔑 تولید کلیدهای WireGuard
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>یادداشت</label>
+              <textarea class="form-control" name="note" rows="2" placeholder="توضیحات اختیاری..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;">
+              <button type="button" class="btn btn-outline" onclick="showSection('clients')">انصراف</button>
+              <button type="submit" class="btn btn-primary">✅ ایجاد کلاینت</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS SECTION ===== -->
+    <div class="section" id="section-settings">
+      <div class="topbar">
+        <h1 class="page-title">⚙️ تنظیمات</h1>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">تنظیمات سرور</h3>
+        </div>
+        <div class="card-body">
+          <form id="settingsForm" onsubmit="saveSettings(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>دامنه سرور</label>
+                <input type="text" class="form-control" name="server_domain" id="settingDomain" placeholder="example.com">
+              </div>
+              <div class="form-group">
+                <label>عنوان پنل</label>
+                <input type="text" class="form-control" name="panel_title" id="settingTitle" value="VPN Panel Pro">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ترافیک پیش‌فرض (GB)</label>
+                <input type="number" class="form-control" name="default_traffic" id="settingTraffic" value="50">
+              </div>
+              <div class="form-group">
+                <label>اعتبار پیش‌فرض (روز)</label>
+                <input type="number" class="form-control" name="default_expire" id="settingExpire" value="30">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ربات تلگرام</label>
+                <input type="text" class="form-control" name="telegram_bot" id="settingTgBot" placeholder="@bot_username">
+              </div>
+              <div class="form-group">
+                <label>آیدی ادمین تلگرام</label>
+                <input type="text" class="form-control" name="telegram_admin" id="settingTgAdmin" placeholder="123456789">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">💾 ذخیره تنظیمات</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🔒 تغییر رمز عبور</h3>
+        </div>
+        <div class="card-body">
+          <form id="passwordForm" onsubmit="changePassword(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>رمز عبور فعلی</label>
+                <input type="password" class="form-control" name="currentPassword" required>
+              </div>
+              <div class="form-group">
+                <label>رمز عبور جدید</label>
+                <input type="password" class="form-control" name="newPassword" required minlength="6">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">🔑 تغییر رمز</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== USERS SECTION ===== -->
+    <div class="section" id="section-users">
+      <div class="topbar">
+        <h1 class="page-title">👤 مدیریت کاربران</h1>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div id="usersContainer">در حال بارگذاری...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LOGS SECTION ===== -->
+    <div class="section" id="section-logs">
+      <div class="topbar">
+        <h1 class="page-title">📋 لاگ ورود</h1>
+      </div>
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>کاربر</th>
+                <th>IP</th>
+                <th>وضعیت</th>
+                <th>تاریخ</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody">
+              <tr><td colspan="4">در حال بارگذاری...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- QR Code Modal -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">📱 QR Code & لینک اتصال</h3>
+        <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-container">
+          <img id="qrCodeImage" src="" alt="QR Code" width="250">
+          <div class="link-box" id="connectionLink"></div>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
+            <button class="btn btn-primary btn-sm" onclick="copyLink()">📋 کپی لینک</button>
+            <button class="btn btn-outline btn-sm" onclick="copySubLink()">🔗 کپی لینک سابسکریپشن</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">✏️ ویرایش کلاینت</h3>
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editClientForm" onsubmit="updateClient(event)">
+          <input type="hidden" name="id" id="editClientId">
+          <div class="form-row">
+            <div class="form-group">
+              <label>نام</label>
+              <input type="text" class="form-control" name="name" id="editName" required>
+            </div>
+            <div class="form-group">
+              <label>ایمیل</label>
+              <input type="email" class="form-control" name="email" id="editEmail">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>حجم ترافیک (GB)</label>
+              <input type="number" class="form-control" name="traffic_limit" id="editTraffic" min="0">
+            </div>
+            <div class="form-group">
+              <label>تاریخ انقضا</label>
+              <input type="datetime-local" class="form-control" name="expire_date" id="editExpire">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>حداکثر اتصال</label>
+              <input type="number" class="form-control" name="max_connections" id="editMaxConn" min="1">
+            </div>
+            <div class="form-group">
+              <label>پورت</label>
+              <input type="number" class="form-control" name="port" id="editPort" min="1" max="65535">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>یادداشت</label>
+            <textarea class="form-control" name="note" id="editNote" rows="2"></textarea>
+          </div>
+          <div class="modal-footer" style="padding:0;border:0;margin-top:16px;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">انصراف</button>
+            <button type="submit" class="btn btn-primary">💾 ذخیره</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const API_BASE = '';
+    let currentClients = [];
+    let currentFilter = 'all';
+    let currentSubUrl = '';
+
+    // ===== Auth =====
+    function getToken() {
+      return localStorage.getItem('token') || '';
+    }
+
+    async function apiFetch(url, options = {}) {
+      const token = getToken();
+      options.headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        ...options.headers
+      };
+      
+      const res = await fetch(API_BASE + url, options);
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        throw new Error('Unauthorized');
+      }
+      return res.json();
+    }
+
+    function logout() {
+      fetch('/auth/logout', { method: 'POST' });
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+
+    // ===== Navigation =====
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      const section = document.getElementById('section-' + name);
+      if (section) section.classList.add('active');
+      
+      event?.target?.closest?.('.nav-item')?.classList.add('active');
+      
+      // Load data for section
+      switch(name) {
+        case 'dashboard': refreshStats(); break;
+        case 'clients': loadClients(); break;
+        case 'settings': loadSettings(); break;
+        case 'users': loadUsers(); break;
+        case 'logs': loadLogs(); break;
+      }
+
+      // Close mobile sidebar
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // ===== Toast =====
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ===== Modal =====
+    function openModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    // ===== Dashboard =====
+    async function refreshStats() {
+      try {
+        const data = await apiFetch('/api/stats');
+        
+        document.getElementById('stat-total').textContent = data.clients.total;
+        document.getElementById('stat-active').textContent = data.clients.active;
+        document.getElementById('stat-expired').textContent = data.clients.expired;
+        document.getElementById('stat-traffic-exceeded').textContent = data.clients.trafficExceeded;
+        document.getElementById('stat-total-traffic').textContent = data.traffic.total_used_formatted;
+
+        // Protocol distribution
+        const distDiv = document.getElementById('protocol-distribution');
+        if (data.clients.byProtocol.length > 0) {
+          distDiv.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:12px;">' +
+            data.clients.byProtocol.map(p => `
+              <div style="background:rgba(255,255,255,0.05);padding:12px 20px;border-radius:10px;text-align:center;">
+                <div class="protocol-badge protocol-${p.protocol}">${p.protocol.toUpperCase()}</div>
+                <div style="font-size:24px;font-weight:700;margin-top:8px;">${p.count}</div>
+              </div>
+            `).join('') + '</div>';
+        } else {
+          distDiv.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>هنوز کلاینتی ایجاد نشده</p></div>';
+        }
+
+        // System info
+        const sysData = await apiFetch('/admin/system');
+        document.getElementById('system-info').innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+            <div><strong>پلتفرم:</strong> ${sysData.system.platform}</div>
+            <div><strong>Node.js:</strong> ${sysData.system.nodeVersion}</div>
+            <div><strong>RAM مصرفی:</strong> ${sysData.system.memory.heapUsed}</div>
+            <div><strong>آپتایم:</strong> ${sysData.system.uptime.formatted}</div>
+          </div>
+        `;
+
+      } catch (err) {
+        console.error('Stats error:', err);
+      }
+    }
+
+    // ===== Clients =====
+    async function loadClients() {
+      try {
+        const params = currentFilter !== 'all' ? `?protocol=${currentFilter}` : '';
+        const data = await apiFetch('/api/clients' + params);
+        currentClients = data.clients;
+        renderClients(data.clients);
+      } catch (err) {
+        console.error('Load clients error:', err);
+      }
+    }
+
+    function renderClients(clients) {
+      const tbody = document.getElementById('clientsTableBody');
+      
+      if (clients.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7">
+          <div class="empty-state"><div class="icon">📭</div><p>کلاینتی یافت نشد</p></div>
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = clients.map(c => {
+        const statusBadge = !c.enabled ? '<span class="badge badge-danger">غیرفعال</span>' :
+          c.is_expired ? '<span class="badge badge-warning">منقضی</span>' :
+          c.is_traffic_exceeded ? '<span class="badge badge-warning">اتمام ترافیک</span>' :
+          '<span class="badge badge-success">فعال</span>';
+
+        const trafficPercent = c.traffic_percentage;
+        const progressClass = trafficPercent > 80 ? 'red' : trafficPercent > 50 ? 'yellow' : 'green';
+
+        return `<tr>
+          <td>
+            <div style="font-weight:600;">${c.name}</div>
+            <div style="font-size:11px;color:var(--text-secondary);direction:ltr;text-align:right;">${c.uuid.substring(0, 8)}...</div>
+          </td>
+          <td><span class="protocol-badge protocol-${c.protocol}">${c.protocol.toUpperCase()}</span></td>
+          <td>${statusBadge}</td>
+          <td>
+            <div>${c.traffic_used_formatted} / ${c.traffic_limit_formatted}</div>
+            ${c.traffic_limit > 0 ? `<div class="progress-bar"><div class="progress-fill ${progressClass}" style="width:${Math.min(trafficPercent, 100)}%"></div></div>` : ''}
+          </td>
+          <td>
+            ${c.expire_date ? `<div>${c.days_left} روز مانده</div><div style="font-size:11px;color:var(--text-secondary);">${new Date(c.expire_date).toLocaleDateString('fa-IR')}</div>` : '<span class="badge badge-info">نامحدود</span>'}
+          </td>
+          <td>${c.max_connections}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-outline btn-icon btn-sm" onclick="showQR(${c.id})" title="QR Code">📱</button>
+              <button class="btn btn-outline btn-icon btn-sm" onclick="editClient(${c.id})" title="ویرایش">✏️</button>
+              <button class="btn btn-outline btn-icon btn-sm" onclick="toggleClient(${c.id})" title="فعال/غیرفعال">
+                ${c.enabled ? '⏸️' : '▶️'}
+              </button>
+              <button class="btn btn-outline btn-icon btn-sm" onclick="resetTraffic(${c.id})" title="ریست ترافیک">🔄</button>
+              <button class="btn btn-danger btn-icon btn-sm" onclick="deleteClient(${c.id}, '${c.name}')" title="حذف">🗑️</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function filterClients(protocol, el) {
+      currentFilter = protocol;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      if (el) el.classList.add('active');
+      loadClients();
+    }
+
+    function searchClients() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = currentClients.filter(c => 
+        c.name.toLowerCase().includes(query) || 
+        c.uuid.toLowerCase().includes(query) ||
+        (c.email && c.email.toLowerCase().includes(query))
+      );
+      renderClients(filtered);
+    }
+
+    // ===== Create Client =====
+    async function createClient(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      
+      // Convert checkboxes
+      data.tls = form.querySelector('[name="tls"]')?.checked ? 1 : 0;
+      data.reality_enabled = form.querySelector('[name="reality_enabled"]')?.checked ? 1 : 0;
+
+      try {
+        const result = await apiFetch('/api/clients', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+
+        if (result.success) {
+          showToast('✅ کلاینت با موفقیت ایجاد شد');
+          form.reset();
+          showSection('clients');
+        } else {
+          showToast('❌ ' + (result.error || 'خطا'), 'error');
+        }
+      } catch (err) {
+        showToast('❌ خطا در ایجاد کلاینت', 'error');
+      }
+    }
+
+    // ===== Edit Client =====
+    function editClient(id) {
+      const client = currentClients.find(c => c.id === id);
+      if (!client) return;
+
+      document.getElementById('editClientId').value = client.id;
+      document.getElementById('editName').value = client.name;
+      document.getElementById('editEmail').value = client.email || '';
+      document.getElementById('editTraffic').value = client.traffic_limit > 0 ? Math.round(client.traffic_limit / 1024 / 1024 / 1024) : 0;
+      document.getElementById('editExpire').value = client.expire_date ? client.expire_date.slice(0, 16) : '';
+      document.getElementById('editMaxConn').value = client.max_connections;
+      document.getElementById('editPort').value = client.port;
+      document.getElementById('editNote').value = client.note || '';
+
+      openModal('editModal');
+    }
+
+    async function updateClient(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      const id = data.id;
+      delete data.id;
+
+      try {
+        const result = await apiFetch(`/api/clients/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data)
+        });
+
+        if (result.success) {
+          showToast('✅ کلاینت بروزرسانی شد');
+          closeModal('editModal');
+          loadClients();
+        }
+      } catch (err) {
+        showToast('❌ خطا در بروزرسانی', 'error');
+      }
+    }
+
+    // ===== QR Code =====
+    async function showQR(id) {
+      try {
+        const data = await apiFetch(`/api/clients/${id}/qrcode`);
+        const client = currentClients.find(c => c.id === id);
+        
+        document.getElementById('qrCodeImage').src = data.qrcode;
+        document.getElementById('connectionLink').textContent = data.link;
+        currentSubUrl = client?.subscription_url || '';
+        
+        openModal('qrModal');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    function copyLink() {
+      const link = document.getElementById('connectionLink').textContent;
+      navigator.clipboard.writeText(link).then(() => showToast('✅ لینک کپی شد'));
+    }
+
+    function copySubLink() {
+      if (currentSubUrl) {
+        const subLink = `${window.location.origin}/sub/${currentSubUrl}`;
+        navigator.clipboard.writeText(subLink).then(() => showToast('✅ لینک سابسکریپشن کپی شد'));
+      }
+    }
+
+    // ===== Toggle / Delete / Reset =====
+    async function toggleClient(id) {
+      try {
+        await apiFetch(`/api/clients/${id}/toggle`, { method: 'POST' });
+        showToast('✅ وضعیت تغییر کرد');
+        loadClients();
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    async function deleteClient(id, name) {
+      if (!confirm(`آیا از حذف "${name}" مطمئن هستید؟`)) return;
+      try {
+        await apiFetch(`/api/clients/${id}`, { method: 'DELETE' });
+        showToast('✅ کلاینت حذف شد');
+        loadClients();
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    async function resetTraffic(id) {
+      if (!confirm('آیا از ریست ترافیک مطمئن هستید؟')) return;
+      try {
+        await apiFetch(`/api/clients/${id}/reset-traffic`, { method: 'POST' });
+        showToast('✅ ترافیک ریست شد');
+        loadClients();
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    // ===== Protocol Form Changes =====
+    function onProtocolChange() {
+      const protocol = document.getElementById('protocolSelect').value;
+      
+      document.getElementById('ssSettings').style.display = 
+        (protocol === 'shadowsocks') ? 'block' : 'none';
+      document.getElementById('wgSettings').style.display = 
+        (protocol === 'wireguard') ? 'block' : 'none';
+      document.getElementById('securitySettings').style.display = 
+        (protocol === 'wireguard') ? 'none' : 'block';
+    }
+
+    function onNetworkChange() {
+      const network = document.getElementById('networkSelect').value;
+      document.getElementById('wsSettings').style.display = network === 'ws' ? 'block' : 'none';
+      document.getElementById('grpcSettings').style.display = network === 'grpc' ? 'block' : 'none';
+    }
+
+    function onTlsChange() {
+      document.getElementById('tlsSettings').style.display = 
+        document.getElementById('tlsCheck').checked ? 'block' : 'none';
+    }
+
+    function onRealityChange() {
+      document.getElementById('realitySettings').style.display = 
+        document.getElementById('realityCheck').checked ? 'block' : 'none';
+    }
+
+    // ===== Key Generation =====
+    async function generateRealityKeys() {
+      try {
+        const data = await apiFetch('/api/generate/reality-keys');
+        document.getElementById('realityPubKey').value = data.keys.publicKey;
+        document.getElementById('realityPriKey').value = data.keys.privateKey;
+        document.getElementById('realityShortId').value = data.keys.shortId;
+        showToast('✅ کلیدهای Reality تولید شد');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    async function generateSSPassword() {
+      try {
+        const data = await apiFetch('/api/generate/ss-password');
+        document.getElementById('ssPassword').value = data.password;
+        showToast('✅ رمز Shadowsocks تولید شد');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    async function generateWGKeys() {
+      try {
+        const data = await apiFetch('/api/generate/wireguard-keys');
+        showToast('✅ کلیدهای WireGuard تولید شد');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    // ===== Settings =====
+    async function loadSettings() {
+      try {
+        const data = await apiFetch('/api/config');
+        const config = data.config;
+        
+        document.getElementById('settingDomain').value = config.server_domain || '';
+        document.getElementById('settingTitle').value = config.panel_title || '';
+        document.getElementById('settingTraffic').value = config.default_traffic || '50';
+        document.getElementById('settingExpire').value = config.default_expire || '30';
+        document.getElementById('settingTgBot').value = config.telegram_bot || '';
+        document.getElementById('settingTgAdmin').value = config.telegram_admin || '';
+      } catch (err) {
+        console.error('Load settings error:', err);
+      }
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      
+      try {
+        await apiFetch('/api/config', {
+          method: 'PUT',
+          body: JSON.stringify(data)
+        });
+        showToast('✅ تنظیمات ذخیره شد');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    async function changePassword(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const result = await apiFetch('/auth/change-password', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        if (result.success) {
+          showToast('✅ رمز عبور تغییر کرد');
+          form.reset();
+        } else {
+          showToast('❌ ' + result.error, 'error');
+        }
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    // ===== Users =====
+    async function loadUsers() {
+      try {
+        const data = await apiFetch('/admin/users');
+        const container = document.getElementById('usersContainer');
+        
+        container.innerHTML = `
+          <table>
+            <thead><tr><th>نام کاربری</th><th>نقش</th><th>آخرین ورود</th><th>عملیات</th></tr></thead>
+            <tbody>
+              ${data.users.map(u => `
+                <tr>
+                  <td>${u.username}</td>
+                  <td><span class="badge badge-info">${u.role}</span></td>
+                  <td>${u.last_login ? new Date(u.last_login).toLocaleString('fa-IR') : '-'}</td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})" 
+                      ${u.role === 'superadmin' ? 'disabled' : ''}>🗑️</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('آیا مطمئن هستید؟')) return;
+      try {
+        await apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
+        showToast('✅ کاربر حذف شد');
+        loadUsers();
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    // ===== Logs =====
+    async function loadLogs() {
+      try {
+        const data = await apiFetch('/api/logs/login');
+        const tbody = document.getElementById('logsTableBody');
+        
+        tbody.innerHTML = data.logs.map(l => `
+          <tr>
+            <td>${l.username || 'ناشناس'}</td>
+            <td style="direction:ltr;text-align:right;">${l.ip_address || '-'}</td>
+            <td>${l.success ? '<span class="badge badge-success">موفق</span>' : '<span class="badge badge-danger">ناموفق</span>'}</td>
+            <td>${new Date(l.created_at).toLocaleString('fa-IR')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ===== Export =====
+    async function exportData() {
+      try {
+        const data = await apiFetch('/api/export');
+        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vpn-panel-backup-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ فایل پشتیبان دانلود شد');
+      } catch (err) {
+        showToast('❌ خطا', 'error');
+      }
+    }
+
+    // ===== Initialize =====
+    (async function init() {
+      const token = getToken();
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      try {
+        const res = await apiFetch('/auth/status');
+        if (res.authenticated) {
+          document.getElementById('currentUser').textContent = res.user.username;
+          refreshStats();
+        } else {
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        window.location.href = '/login';
+      }
+    })();
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('show');
+      });
+    });
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+      }
+    });
+  </script>
+</body>
+  </html>

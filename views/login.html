@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPN Panel - ورود</title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a1a;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .bg-animation .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bg-animation .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: twinkle var(--duration) infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(99, 102, 241, 0.3);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: rgba(139, 92, 246, 0.25);
+      bottom: -80px;
+      left: -80px;
+      animation-delay: 3s;
+    }
+
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: rgba(59, 130, 246, 0.2);
+      top: 50%;
+      left: 50%;
+      animation-delay: 5s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    /* Login Card */
+    .login-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(17, 17, 34, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 24px;
+      padding: 48px 40px;
+      box-shadow: 
+        0 0 40px rgba(99, 102, 241, 0.1),
+        0 25px 50px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .login-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 
+        0 0 60px rgba(99, 102, 241, 0.15),
+        0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #3b82f6);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 36px;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+      50% { box-shadow: 0 10px 40px rgba(99, 102, 241, 0.5); }
+    }
+
+    .logo-title {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #c7d2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .logo-subtitle {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper .icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 44px 14px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 15px;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-input:focus {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.05);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-input:focus + .icon,
+    .form-input:focus ~ .icon {
+      opacity: 0.8;
+    }
+
+    .toggle-password {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+
+    .toggle-password:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .checkbox-label input[type="checkbox"]:checked {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+
+    .checkbox-label input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+
+    .login-btn.loading .btn-text { display: none; }
+    .login-btn.loading .spinner { display: block; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 24px;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 36px 28px;
+        border-radius: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-animation">
+    <div class="stars" id="stars"></div>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <!-- Login Card -->
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+        <div class="logo-icon">🛡️</div>
+        <h1 class="logo-title">VPN Panel Pro</h1>
+        <p class="logo-subtitle">پنل مدیریت حرفه‌ای</p>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>نام کاربری</label>
+          <div class="input-wrapper">
+            <input type="text" class="form-input" id="username" 
+                   placeholder="نام کاربری خود را وارد کنید" 
+                   autocomplete="username" required>
+            <span class="icon">👤</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>رمز عبور</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="password" 
+                   placeholder="رمز عبور خود را وارد کنید"
+                   autocomplete="current-password" required>
+            <span class="icon">🔒</span>
+            <button type="button" class="toggle-password" id="togglePass">👁️</button>
+          </div>
+        </div>
+
+        <div class="remember-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="rememberMe">
+            مرا به خاطر بسپار
+          </label>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span class="btn-text">ورود به پنل</span>
+          <div class="spinner"></div>
+        </button>
+      </form>
+
+      <p class="footer-text">🔒 اتصال امن | نسخه 2.0</p>
+    </div>
+  </div>
+
+  <script>
+    // Generate stars
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+      star.style.animationDelay = Math.random() * 5 + 's';
+      starsContainer.appendChild(star);
+    }
+
+    // Toggle password visibility
+    document.getElementById('togglePass').addEventListener('click', function() {
+      const passInput = document.getElementById('password');
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        this.textContent = '🙈';
+      } else {
+        passInput.type = 'password';
+        this.textContent = '👁️';
+      }
+    });
+
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('loginBtn');
+      const errorDiv = document.getElementById('errorMessage');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        showError('لطفاً نام کاربری و رمز عبور را وارد کنید');
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+      errorDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          // Success animation
+          btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          btn.innerHTML = '<span class="btn-text">✅ ورود موفق</span>';
+          
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 500);
+        } else {
+          showError(data.error || 'نام کاربری یا رمز عبور اشتباه است');
+          btn.classList.remove('loading');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        showError('خطا در برقراری ارتباط با سرور');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    });
+
+    function showError(msg) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+    }
+
+    // Check if already logged in
+    (async function checkAuth() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const res = await fetch('/auth/status', {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          if (res.ok) {
+            window.location.href = '/dashboard';
+          }
+        } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+  </html>
